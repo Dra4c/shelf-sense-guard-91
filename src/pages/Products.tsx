@@ -1,14 +1,18 @@
 
 import React, { useState } from 'react';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Plus, Search, Filter, Barcode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ProductCard from '@/components/products/ProductCard';
-import { products } from '@/data/mockData';
+import { products as initialProducts } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
+import AddProductDialog from '@/components/products/AddProductDialog';
+import { Product } from '@/types';
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [products, setProducts] = useState(initialProducts);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const filteredProducts = products.filter(product => 
@@ -17,10 +21,7 @@ const Products = () => {
   );
 
   const handleAddProduct = () => {
-    toast({
-      title: "Funcionalidade em desenvolvimento",
-      description: "O cadastro de produtos estará disponível em breve.",
-    });
+    setIsAddDialogOpen(true);
   };
 
   const handleBarcodeScan = () => {
@@ -28,6 +29,10 @@ const Products = () => {
       title: "Scanner de código de barras",
       description: "Escaneie o código de barras para identificar o produto.",
     });
+  };
+
+  const handleProductAdded = (newProduct: Product) => {
+    setProducts([...products, newProduct]);
   };
 
   return (
@@ -61,7 +66,7 @@ const Products = () => {
             <Filter className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="icon" onClick={handleBarcodeScan}>
-            <Search className="h-4 w-4" />
+            <Barcode className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -77,6 +82,12 @@ const Products = () => {
           <p className="text-muted-foreground">Nenhum produto encontrado.</p>
         </div>
       )}
+      
+      <AddProductDialog 
+        open={isAddDialogOpen} 
+        onOpenChange={setIsAddDialogOpen}
+        onProductAdded={handleProductAdded}
+      />
     </div>
   );
 };
