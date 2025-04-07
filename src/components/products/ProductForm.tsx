@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Barcode, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 
 type ProductFormValues = {
   name: string;
@@ -36,17 +37,65 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialData, onCanc
       image: initialData?.image || '',
     },
   });
+  
+  // Update form when initialData changes (e.g., when barcode is scanned)
+  useEffect(() => {
+    if (initialData?.barcode) {
+      form.setValue('barcode', initialData.barcode);
+    }
+  }, [initialData, form]);
 
-  const handleScanBarcode = () => {
-    toast({
-      title: "Scanner de código de barras",
-      description: "Escaneie o código de barras para identificar o produto.",
-    });
-    
-    // Simulate scanning a barcode
-    setTimeout(() => {
-      form.setValue('barcode', '789' + Math.floor(Math.random() * 10000000).toString().padStart(7, '0'));
-    }, 1500);
+  const handleScanBarcode = async () => {
+    try {
+      // Check camera permission
+      const status = await BarcodeScanner.checkPermission({ force: true });
+      
+      if (status.granted) {
+        // Make background transparent
+        document.querySelector('body')?.classList.add('scanner-active');
+        
+        toast({
+          title: "Scanner de código de barras",
+          description: "Posicione o código de barras em frente à câmera.",
+        });
+        
+        // Start scanning
+        await BarcodeScanner.hideBackground();
+        const result = await BarcodeScanner.startScan();
+        
+        // Restore background
+        document.querySelector('body')?.classList.remove('scanner-active');
+        await BarcodeScanner.showBackground();
+        
+        // If we got a barcode
+        if (result.hasContent) {
+          form.setValue('barcode', result.content);
+          toast({
+            title: "Código de barras lido",
+            description: `Código ${result.content} detectado com sucesso.`,
+          });
+        }
+      } else {
+        toast({
+          title: "Permissão negada",
+          description: "Você precisa permitir o acesso à câmera para usar o scanner.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Barcode scanning error:', error);
+      
+      // Clean up if there's an error
+      document.querySelector('body')?.classList.remove('scanner-active');
+      await BarcodeScanner.showBackground();
+      await BarcodeScanner.stopScan();
+      
+      toast({
+        title: "Erro no scanner",
+        description: "Ocorreu um erro ao tentar escanear. Por favor, tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

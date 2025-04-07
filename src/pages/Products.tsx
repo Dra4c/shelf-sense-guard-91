@@ -11,11 +11,13 @@ import { Product } from '@/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [products, setProducts] = useState(initialProducts);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
@@ -28,11 +30,75 @@ const Products = () => {
     setIsAddDialogOpen(true);
   };
 
+  const startScan = async () => {
+    try {
+      // Check camera permission
+      const status = await BarcodeScanner.checkPermission({ force: true });
+      
+      if (status.granted) {
+        // Make background transparent to show camera preview
+        document.querySelector('body')?.classList.add('scanner-active');
+        
+        // Start scanning
+        setIsScanning(true);
+        await BarcodeScanner.hideBackground();
+        const result = await BarcodeScanner.startScan();
+        
+        // If we got a barcode
+        if (result.hasContent) {
+          const scannedBarcode = result.content;
+          
+          // Close the scanner
+          document.querySelector('body')?.classList.remove('scanner-active');
+          setIsScanning(false);
+          await BarcodeScanner.showBackground();
+          await BarcodeScanner.stopScan();
+          
+          // Show toast and open the add dialog with the scanned barcode
+          toast({
+            title: "Código de barras detectado",
+            description: `Código ${scannedBarcode} identificado. Complete os dados do produto.`,
+          });
+          
+          // Open add dialog with the scanned barcode
+          setIsAddDialogOpen(true);
+          
+          return scannedBarcode;
+        }
+      } else {
+        toast({
+          title: "Permissão negada",
+          description: "Você precisa permitir o acesso à câmera para usar o scanner.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Scanning error:', error);
+      
+      // Clean up if there's an error
+      document.querySelector('body')?.classList.remove('scanner-active');
+      setIsScanning(false);
+      await BarcodeScanner.showBackground();
+      await BarcodeScanner.stopScan();
+      
+      toast({
+        title: "Erro no scanner",
+        description: "Ocorreu um erro ao tentar escanear. Por favor, tente novamente.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const stopScan = async () => {
+    // Restore normal state
+    document.querySelector('body')?.classList.remove('scanner-active');
+    setIsScanning(false);
+    await BarcodeScanner.showBackground();
+    await BarcodeScanner.stopScan();
+  };
+
   const handleBarcodeScan = () => {
-    toast({
-      title: "Scanner de código de barras",
-      description: "Escaneie o código de barras para identificar o produto.",
-    });
+    startScan();
   };
 
   const handleProductAdded = (newProduct: Product) => {
@@ -42,6 +108,24 @@ const Products = () => {
       description: `${newProduct.name} foi adicionado com sucesso.`,
     });
   };
+
+  // Show scanner UI when scanning is active
+  if (isScanning) {
+    return (
+      <div className="scanner-ui fixed inset-0 flex flex-col items-center justify-center z-50">
+        <div className="scan-region p-4 border-2 border-primary rounded-lg mb-4">
+          <p className="text-white text-center">Posicione o código de barras aqui</p>
+        </div>
+        <Button 
+          onClick={stopScan}
+          variant="destructive"
+          className="mt-4 fixed bottom-16 left-1/2 transform -translate-x-1/2"
+        >
+          Cancelar escaneamento
+        </Button>
+      </div>
+    );
+  }
 
   // Renderização condicional baseada no dispositivo
   if (isMobile) {
@@ -163,7 +247,7 @@ const Products = () => {
           />
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={handleBarcodeScan}>
+          <Button variant="outline" size="icon" onClick={() => toast({ title: "Filtros", description: "Funcionalidade em desenvolvimento." })}>
             <Filter className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="icon" onClick={handleBarcodeScan}>

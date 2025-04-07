@@ -17,6 +17,24 @@ const config: CapacitorConfig = {
       splashFullScreen: true,
       splashImmersive: true
     }
+  },
+  // Add styles for the barcode scanner
+  appendUserAgent: 'ShelfSenseGuard',
+  style: {
+    '.scanner-active': {
+      'background': 'transparent !important',
+      'background-color': 'transparent !important',
+    },
+    '.scanner-ui .scan-region': {
+      'border': '2px solid #4C8CF5',
+      'border-radius': '10px',
+      'padding': '20px',
+      'margin-bottom': '20px',
+      'position': 'relative',
+      'width': '80%',
+      'max-width': '300px',
+      'aspect-ratio': '1',
+    }
   }
 };
 

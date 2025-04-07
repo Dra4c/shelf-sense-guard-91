@@ -1,11 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProductForm from './ProductForm';
 import { PenLine, Barcode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { Button } from '@/components/ui/button';
 
 interface AddProductDialogProps {
   open: boolean;
@@ -20,6 +22,15 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
 }) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("manual");
+  const [isScanning, setIsScanning] = useState(false);
+  const [scannedBarcode, setScannedBarcode] = useState<string | null>(null);
+
+  // Clean up scanner when dialog closes
+  useEffect(() => {
+    if (!open && isScanning) {
+      stopScan();
+    }
+  }, [open]);
 
   const handleSubmit = (data: Omit<Product, 'id' | 'currentStock'>) => {
     // Create a new product with the submitted data
@@ -32,36 +43,97 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
     // Call the callback function to add the product
     onProductAdded(newProduct);
 
-    // Show success toast
-    toast({
-      title: "Produto adicionado",
-      description: `${newProduct.name} foi adicionado ao catálogo.`,
-    });
-
     // Close the dialog
     onOpenChange(false);
   };
 
-  const handleScanBarcode = () => {
-    toast({
-      title: "Scanner de código de barras",
-      description: "Posicione a câmera para ler o código de barras.",
-    });
-    
-    // Simulate finding a product by barcode after 2 seconds
-    setTimeout(() => {
-      const mockBarcode = '789' + Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+  const startScan = async () => {
+    try {
+      const status = await BarcodeScanner.checkPermission({ force: true });
       
-      // Switch to manual tab with pre-filled data
-      setActiveTab("manual");
+      if (status.granted) {
+        setIsScanning(true);
+        
+        // Make background transparent
+        document.querySelector('body')?.classList.add('scanner-active');
+        await BarcodeScanner.hideBackground();
+        
+        const result = await BarcodeScanner.startScan();
+        
+        if (result.hasContent) {
+          setScannedBarcode(result.content);
+          setActiveTab("manual");
+          
+          toast({
+            title: "Código de barras detectado",
+            description: `Código ${result.content} identificado. Complete os dados do produto.`,
+          });
+        }
+        
+        // Restore normal state
+        document.querySelector('body')?.classList.remove('scanner-active');
+        setIsScanning(false);
+        await BarcodeScanner.showBackground();
+        await BarcodeScanner.stopScan();
+      } else {
+        toast({
+          title: "Permissão negada",
+          description: "Você precisa permitir o acesso à câmera para usar o scanner.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Scanning error:', error);
       
-      // Show toast about found barcode
+      // Clean up if there's an error
+      document.querySelector('body')?.classList.remove('scanner-active');
+      setIsScanning(false);
+      await BarcodeScanner.showBackground();
+      await BarcodeScanner.stopScan();
+      
       toast({
-        title: "Código de barras detectado",
-        description: `Código ${mockBarcode} identificado. Complete os dados do produto.`,
+        title: "Erro no scanner",
+        description: "Ocorreu um erro ao tentar escanear. Por favor, tente novamente.",
+        variant: "destructive"
       });
-    }, 2000);
+    }
   };
+
+  const stopScan = async () => {
+    document.querySelector('body')?.classList.remove('scanner-active');
+    setIsScanning(false);
+    await BarcodeScanner.showBackground();
+    await BarcodeScanner.stopScan();
+  };
+
+  const handleScanBarcode = () => {
+    startScan();
+  };
+
+  // Show scanner UI if scanning
+  if (isScanning) {
+    return (
+      <Dialog open={open} onOpenChange={(newOpen) => {
+        if (!newOpen) stopScan();
+        onOpenChange(newOpen);
+      }}>
+        <DialogContent className="sm:max-w-[600px]">
+          <div className="scanner-ui flex flex-col items-center justify-center">
+            <div className="scan-region p-8 border-2 border-primary rounded-lg mb-4">
+              <p className="text-center">Posicione o código de barras aqui</p>
+            </div>
+            <Button 
+              onClick={stopScan}
+              variant="destructive"
+              className="mt-4"
+            >
+              Cancelar escaneamento
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -89,6 +161,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
             <ProductForm 
               onSubmit={handleSubmit}
               onCancel={() => onOpenChange(false)}
+              initialData={scannedBarcode ? { barcode: scannedBarcode } : undefined}
             />
           </TabsContent>
           
@@ -107,7 +180,7 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
                 className="flex items-center gap-2 bg-primary px-4 py-2 rounded-md text-white font-medium"
               >
                 <Barcode className="h-4 w-4" />
-                Simular leitura de código
+                Ativar scanner de código
               </button>
             </div>
           </TabsContent>
