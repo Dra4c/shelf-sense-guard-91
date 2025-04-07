@@ -6,9 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Barcode, Save } from 'lucide-react';
+import { Barcode, Save, Calendar as CalendarIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 type ProductFormValues = {
   name: string;
@@ -17,6 +21,7 @@ type ProductFormValues = {
   barcode: string;
   minStock: number;
   image?: string;
+  expiryDate?: Date;
 };
 
 interface ProductFormProps {
@@ -35,6 +40,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialData, onCanc
       barcode: initialData?.barcode || '',
       minStock: initialData?.minStock || 10,
       image: initialData?.image || '',
+      expiryDate: initialData?.expiryDate,
     },
   });
   
@@ -183,6 +189,47 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialData, onCanc
                   onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} 
                 />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="expiryDate"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Data de validade</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "dd/MM/yyyy")
+                      ) : (
+                        <span>Selecione a data de validade</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
               <FormMessage />
             </FormItem>
           )}

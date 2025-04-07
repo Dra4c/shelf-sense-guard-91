@@ -1,4 +1,3 @@
-
 // Product data types
 export type Product = {
   id: string;
@@ -9,6 +8,7 @@ export type Product = {
   minStock: number;
   image?: string;
   currentStock: number;
+  expiryDate?: Date;
 };
 
 // Batch data types
