@@ -16,6 +16,10 @@ const config: CapacitorConfig = {
       androidSplashResourceName: "splash",
       splashFullScreen: true,
       splashImmersive: true
+    },
+    // Add specific configuration for BarcodeScanner if needed
+    BarcodeScanner: {
+      // No specific config needed, using defaults
     }
   },
   // Add styles for the barcode scanner
