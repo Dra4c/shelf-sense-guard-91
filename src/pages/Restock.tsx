@@ -20,7 +20,8 @@ const Restock = () => {
     handleMarkAsRestocked,
     handleListCreated,
     handleConfirmRestock,
-    handleCancelRestock
+    handleCancelRestock,
+    handleProductStockChange
   } = useRestockManagement(products);
 
   // Reset to restocking tab when a list is created
@@ -68,6 +69,7 @@ const Restock = () => {
           <RestockList 
             products={managedProducts}
             onListCreated={handleListCreated}
+            onProductStockChange={handleProductStockChange}
           />
         </TabsContent>
       </Tabs>

@@ -79,20 +79,6 @@ export function useRestockManagement(initialProducts: Product[]) {
       });
     }
     
-    // Update local products state (mark as restocked)
-    const updatedProducts = [...products];
-    activeList.items.forEach(item => {
-      const productIndex = updatedProducts.findIndex(p => p.id === item.productId);
-      if (productIndex >= 0) {
-        updatedProducts[productIndex] = {
-          ...updatedProducts[productIndex],
-          currentStock: updatedProducts[productIndex].currentStock + item.quantity
-        };
-      }
-    });
-    
-    setProducts(updatedProducts);
-    
     // Clear active list
     setActiveList(null);
     
@@ -116,16 +102,47 @@ export function useRestockManagement(initialProducts: Product[]) {
         });
       }
       
+      // Return stock to inventory if cancelling
+      if (activeList) {
+        const updatedProducts = [...products];
+        
+        activeList.items.forEach(item => {
+          const productIndex = updatedProducts.findIndex(p => p.id === item.productId);
+          if (productIndex >= 0) {
+            updatedProducts[productIndex] = {
+              ...updatedProducts[productIndex],
+              currentStock: updatedProducts[productIndex].currentStock + item.quantity
+            };
+          }
+        });
+        
+        setProducts(updatedProducts);
+      }
+      
       // Clear active list
       setActiveList(null);
       
       // Show toast
       toast({
         title: "Lista cancelada",
-        description: `A lista "${listName}" foi cancelada.`,
+        description: `A lista "${listName}" foi cancelada e o estoque foi restaurado.`,
         variant: "destructive"
       });
     }
+  };
+  
+  const handleProductStockChange = (productId: string, newStock: number) => {
+    const updatedProducts = products.map(product => {
+      if (product.id === productId) {
+        return {
+          ...product,
+          currentStock: newStock
+        };
+      }
+      return product;
+    });
+    
+    setProducts(updatedProducts);
   };
   
   return {
@@ -135,6 +152,7 @@ export function useRestockManagement(initialProducts: Product[]) {
     handleMarkAsRestocked,
     handleListCreated,
     handleConfirmRestock,
-    handleCancelRestock
+    handleCancelRestock,
+    handleProductStockChange
   };
 }

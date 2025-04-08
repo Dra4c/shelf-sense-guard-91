@@ -58,7 +58,7 @@ const ActiveRestockSheet: React.FC<ActiveRestockSheetProps> = ({
                   <div key={item.productId} className="flex items-center justify-between p-2 border rounded-md">
                     <div>
                       <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-muted-foreground">Quantidade: {item.quantity}</p>
+                      <p className="text-sm text-muted-foreground">Quantidade para repor: {item.quantity}</p>
                     </div>
                     {product && (
                       <div className="text-sm text-right">

@@ -37,7 +37,7 @@ const RestockItem: React.FC<RestockItemProps> = ({
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value) || 1;
-    const newQuantity = Math.max(1, Math.min(value, 100)); // Allow up to 100 items
+    const newQuantity = Math.max(1, Math.min(value, product.currentStock)); // Limit quantity to current stock
     setQuantity(newQuantity);
     
     if (isSelected && onSelect) {
@@ -47,7 +47,7 @@ const RestockItem: React.FC<RestockItemProps> = ({
 
   const handleIncrement = () => {
     const newQuantity = quantity + 1;
-    if (newQuantity <= 100) { // Allow up to 100 items
+    if (newQuantity <= product.currentStock) { // Limit quantity to current stock
       setQuantity(newQuantity);
       
       if (isSelected && onSelect) {
@@ -107,7 +107,7 @@ const RestockItem: React.FC<RestockItemProps> = ({
             <Input
               type="number"
               min={1}
-              max={100}
+              max={product.currentStock}
               value={quantity}
               onChange={handleQuantityChange}
               className="h-8 w-16 border-0 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
