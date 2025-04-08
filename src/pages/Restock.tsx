@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/hooks/use-toast';
@@ -9,53 +9,17 @@ import LowStockTab from '@/components/restock/LowStockTab';
 import ActiveRestockSheet from '@/components/restock/ActiveRestockSheet';
 import RestockHistory from '@/components/restock/RestockHistory';
 import { products as initialProducts } from '@/data/products';
-
-// Mock history data
-const historyData = [
-  {
-    id: 'hist_1',
-    name: 'Reposição Semanal',
-    createdAt: new Date(2025, 3, 1, 10, 30),
-    status: 'completed' as const,
-    itemCount: 12,
-    items: [
-      { productId: 'prod_1', name: 'Produto 1', quantity: 5 },
-      { productId: 'prod_2', name: 'Produto 2', quantity: 7 }
-    ]
-  },
-  {
-    id: 'hist_2',
-    name: 'Reposição Prioridades',
-    createdAt: new Date(2025, 3, 5, 9, 15),
-    status: 'cancelled' as const,
-    itemCount: 5,
-    items: [
-      { productId: 'prod_3', name: 'Produto 3', quantity: 2 },
-      { productId: 'prod_4', name: 'Produto 4', quantity: 3 }
-    ]
-  },
-  {
-    id: 'hist_3',
-    name: 'Reposição Emergencial',
-    createdAt: new Date(2025, 3, 7, 14, 45),
-    status: 'active' as const,
-    itemCount: 3,
-    items: [
-      { productId: 'prod_5', name: 'Produto 5', quantity: 1 },
-      { productId: 'prod_6', name: 'Produto 6', quantity: 2 }
-    ]
-  }
-];
+import { useRestockHistory } from '@/hooks/useRestockHistory';
 
 const Restock = () => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [lowStockProducts, setLowStockProducts] = useState<Product[]>([]);
   const [activeList, setActiveList] = useState<any>(null);
-  const [historyList, setHistoryList] = useState<any[]>(historyData);
   const [historyView, setHistoryView] = useState(false);
   const { toast } = useToast();
+  const { historyList, addToHistory, updateHistoryItem } = useRestockHistory();
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Filter low stock products
     const lowStock = products.filter(p => p.currentStock < p.minStock);
     setLowStockProducts(lowStock);
@@ -70,7 +34,7 @@ const Restock = () => {
       itemCount: list.items.length
     };
     
-    setHistoryList([listWithCount, ...historyList]);
+    addToHistory(listWithCount);
     
     toast({
       title: "Lista de reposição criada",
@@ -105,11 +69,7 @@ const Restock = () => {
     const updatedList = { ...activeList, status: 'completed' };
     
     // Update history
-    setHistoryList(prev => 
-      prev.map(item => 
-        item.id === updatedList.id ? { ...item, status: 'completed' } : item
-      )
-    );
+    updateHistoryItem(updatedList.id, { status: 'completed' });
     
     setActiveList(null);
     
@@ -126,11 +86,7 @@ const Restock = () => {
     const updatedList = { ...activeList, status: 'cancelled' };
     
     // Update history
-    setHistoryList(prev => 
-      prev.map(item => 
-        item.id === updatedList.id ? { ...item, status: 'cancelled' } : item
-      )
-    );
+    updateHistoryItem(updatedList.id, { status: 'cancelled' });
     
     // Return products to inventory
     activeList.items.forEach((item: any) => {
@@ -168,35 +124,15 @@ const Restock = () => {
         description="Gerencie a reposição de produtos nas prateleiras"
       />
       
-      <Tabs defaultValue="new">
-        <TabsList>
-          <TabsTrigger value="new">Nova Lista</TabsTrigger>
-          <TabsTrigger value="active">Lista Ativa</TabsTrigger>
-          <TabsTrigger value="history">Histórico</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="new" className="space-y-4">
-          <RestockList 
-            products={products}
-            onListCreated={handleListCreated}
-            onProductStockChange={handleProductStockChange}
-          />
-        </TabsContent>
-        
-        <TabsContent value="active" className="space-y-4">
-          <LowStockTab 
-            lowStockProducts={lowStockProducts}
-            onMarkAsRestocked={handleMarkAsRestocked}
-          />
-        </TabsContent>
-        
-        <TabsContent value="history" className="space-y-4">
-          <RestockHistory 
-            history={historyList}
-            onViewList={handleViewListFromHistory}
-          />
-        </TabsContent>
-      </Tabs>
+      <RestockTabs 
+        products={products}
+        lowStockProducts={lowStockProducts}
+        historyList={historyList}
+        onListCreated={handleListCreated}
+        onMarkAsRestocked={handleMarkAsRestocked}
+        onProductStockChange={handleProductStockChange}
+        onViewList={handleViewListFromHistory}
+      />
       
       <ActiveRestockSheet 
         activeList={activeList}
