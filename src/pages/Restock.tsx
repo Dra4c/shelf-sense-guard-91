@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { products as initialProducts } from '@/data/products';
 import RestockItem from '@/components/restock/RestockItem';
 import RestockList from '@/components/restock/RestockList';
+import RestockListHeader from '@/components/restock/RestockListHeader';
+import RestockListFooter from '@/components/restock/RestockListFooter';
 import { useToast } from '@/hooks/use-toast';
 import { useOffline } from '@/contexts/OfflineContext';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
