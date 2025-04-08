@@ -1,3 +1,4 @@
+
 import { Product, Batch, Movement } from '../types';
 
 // Helper function to add days to date
@@ -179,7 +180,7 @@ export const movements: Movement[] = [
   },
 ];
 
-// Adicionar a função getMockMovements que estava faltando
+// Função para retornar o array de movimentos
 export const getMockMovements = () => {
   return movements;
 };
