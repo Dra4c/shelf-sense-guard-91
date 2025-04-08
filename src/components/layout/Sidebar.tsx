@@ -19,6 +19,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar
 } from '@/components/ui/sidebar';
 
 const menuItems = [
@@ -31,6 +32,18 @@ const menuItems = [
 ];
 
 const Sidebar = () => {
+  const { setOpen, setOpenMobile, isMobile } = useSidebar();
+
+  // Function to handle navigation clicks
+  const handleNavClick = () => {
+    // Close the appropriate sidebar based on device
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+  };
+
   return (
     <SidebarComponent>
       <SidebarHeader className="flex h-16 items-center border-b px-6">
@@ -46,6 +59,7 @@ const Sidebar = () => {
               <SidebarMenuButton asChild>
                 <NavLink
                   to={item.path}
+                  onClick={handleNavClick}
                   className={({ isActive }) => cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-primary/5"
@@ -65,6 +79,7 @@ const Sidebar = () => {
             <SidebarMenuButton asChild>
               <NavLink
                 to="/configuracoes"
+                onClick={handleNavClick}
                 className={({ isActive }) => cn(
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-primary/5"
