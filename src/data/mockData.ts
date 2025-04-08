@@ -180,6 +180,11 @@ export const movements: Movement[] = [
   },
 ];
 
+// Function to get movements
+export const getMockMovements = () => {
+  return movements;
+};
+
 // Calculate statistics for dashboard
 export const getStats = () => {
   const totalProducts = products.length;

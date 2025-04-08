@@ -1,13 +1,11 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   FileText, 
-  FilePdf, 
-  Mail, 
   Download, 
+  Mail, 
   Calendar as CalendarIcon,
   Plus,
   Clock
@@ -379,7 +377,7 @@ const Reports = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <FilePdf className="h-5 w-5 mr-2" />
+            <FileText className="h-5 w-5 mr-2" />
             <span>Relatórios Recentes</span>
           </CardTitle>
           <CardDescription>

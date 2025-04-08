@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { Filter, Calendar as CalendarIcon, RefreshCw } from 'lucide-react';
 import MovementsTable from '@/components/movements/MovementsTable';
 import { useOffline } from '@/contexts/OfflineContext';
-import { getMockMovements } from '@/data/mockData';
+import { movements } from '@/data/mockData';
 
 const Movements = () => {
   const { isOffline } = useOffline();
@@ -20,10 +19,10 @@ const Movements = () => {
   const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
   const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
   const [userFilter, setUserFilter] = useState<string | undefined>(undefined);
-  const [filteredData, setFilteredData] = useState(getMockMovements());
+  const [filteredData, setFilteredData] = useState(movements);
 
   const applyFilters = () => {
-    let filtered = getMockMovements();
+    let filtered = movements;
     
     if (searchTerm) {
       filtered = filtered.filter(
@@ -59,7 +58,7 @@ const Movements = () => {
     setTypeFilter(undefined);
     setDateFilter(undefined);
     setUserFilter(undefined);
-    setFilteredData(getMockMovements());
+    setFilteredData(movements);
   };
 
   return (
