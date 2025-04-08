@@ -8,10 +8,25 @@ import RestockItem from '@/components/restock/RestockItem';
 import RestockList from '@/components/restock/RestockList';
 import { useToast } from '@/hooks/use-toast';
 import { useOffline } from '@/contexts/OfflineContext';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+
+interface RestockListItem {
+  productId: string;
+  name: string;
+  quantity: number;
+}
+
+interface ActiveRestockList {
+  id: string;
+  name: string;
+  items: RestockListItem[];
+  createdAt: Date;
+}
 
 const Restock = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [products, setProducts] = useState(initialProducts);
+  const [activeList, setActiveList] = useState<ActiveRestockList | null>(null);
   const { toast } = useToast();
   const { isOffline, addPendingAction } = useOffline();
 
@@ -49,9 +64,81 @@ const Restock = () => {
     });
   };
   
-  const handleListCreated = () => {
-    // Switch to the active tab to show pending restocks
+  const handleListCreated = (newList: ActiveRestockList) => {
+    // Set the active list and show sheet
+    setActiveList(newList);
+    
+    // Show success message
+    toast({
+      title: "Lista de reposição criada",
+      description: `A lista "${newList.name}" está ativa e pronta para reposição.`,
+    });
+  };
+  
+  const handleConfirmRestock = () => {
+    if (!activeList) return;
+    
+    // Process the restock confirmation
+    if (isOffline) {
+      addPendingAction({
+        type: 'complete_restock_list',
+        data: { listId: activeList.id, completedAt: new Date().toISOString() }
+      });
+    }
+    
+    // Update local products state (mark as restocked)
+    const updatedProducts = [...products];
+    activeList.items.forEach(item => {
+      const productIndex = updatedProducts.findIndex(p => p.id === item.productId);
+      if (productIndex >= 0) {
+        updatedProducts[productIndex] = {
+          ...updatedProducts[productIndex],
+          currentStock: updatedProducts[productIndex].currentStock + item.quantity
+        };
+      }
+    });
+    
+    setProducts(updatedProducts);
+    
+    // Clear active list
+    setActiveList(null);
+    
+    // Show success toast
+    toast({
+      title: "Reposição concluída",
+      description: `A lista "${activeList.name}" foi concluída com sucesso.`,
+    });
+    
+    // Switch to active tab
     setActiveTab('active');
+  };
+  
+  const handleCancelRestock = () => {
+    // Ask for confirmation
+    if (window.confirm('Tem certeza que deseja cancelar esta lista de reposição?')) {
+      const listName = activeList?.name;
+      
+      // Log cancellation
+      if (isOffline && activeList) {
+        addPendingAction({
+          type: 'cancel_restock_list',
+          data: { listId: activeList.id, cancelledAt: new Date().toISOString() }
+        });
+      }
+      
+      // Clear active list
+      setActiveList(null);
+      
+      // Show toast
+      toast({
+        title: "Lista cancelada",
+        description: `A lista "${listName}" foi cancelada.`,
+        variant: "destructive"
+      });
+      
+      // Switch to active tab
+      setActiveTab('active');
+    }
   };
 
   return (
@@ -102,9 +189,61 @@ const Restock = () => {
         </TabsContent>
         
         <TabsContent value="create" className="mt-6">
-          <RestockList products={products} onListCreated={handleListCreated} />
+          <RestockList 
+            products={products} 
+            onListCreated={handleListCreated} 
+          />
         </TabsContent>
       </Tabs>
+      
+      {/* Sheet for active restock list */}
+      <Sheet open={!!activeList} onOpenChange={(open) => !open && handleCancelRestock()}>
+        <SheetContent className="w-full sm:max-w-md">
+          {activeList && (
+            <Card className="w-full border-none shadow-none">
+              <RestockListHeader activeList={true} startTime={activeList.createdAt} />
+              
+              <CardContent className="space-y-4">
+                <div className="pb-2 border-b">
+                  <p className="font-medium">{activeList.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Criada em {activeList.createdAt.toLocaleTimeString()}
+                  </p>
+                </div>
+                
+                <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                  {activeList.items.map((item) => {
+                    const product = products.find(p => p.id === item.productId);
+                    
+                    return (
+                      <div key={item.productId} className="flex items-center justify-between p-2 border rounded-md">
+                        <div>
+                          <p className="font-medium">{item.name}</p>
+                          <p className="text-sm text-muted-foreground">Quantidade: {item.quantity}</p>
+                        </div>
+                        {product && (
+                          <div className="text-sm text-right">
+                            <p>Estoque: {product.currentStock}</p>
+                            <p>Mínimo: {product.minStock}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+              
+              <RestockListFooter
+                selectedProductsCount={activeList.items.length}
+                onSave={() => {}}
+                activeList={true}
+                onConfirm={handleConfirmRestock}
+                onCancel={handleCancelRestock}
+              />
+            </Card>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

@@ -12,7 +12,7 @@ import RestockListFooter from './RestockListFooter';
 
 interface RestockListProps {
   products: Product[];
-  onListCreated?: () => void;
+  onListCreated?: (list: any) => void; // Updated to pass the list object
 }
 
 const RestockList: React.FC<RestockListProps> = ({ products, onListCreated }) => {
@@ -56,8 +56,8 @@ const RestockList: React.FC<RestockListProps> = ({ products, onListCreated }) =>
       id: `list_${Date.now()}`,
       name: listName,
       items: restockItems,
-      createdAt: new Date().toISOString(),
-      status: 'pending'
+      createdAt: new Date(),
+      status: 'active'
     };
     
     // In offline mode, add to pending actions
@@ -68,19 +68,13 @@ const RestockList: React.FC<RestockListProps> = ({ products, onListCreated }) =>
       });
     }
     
-    // Show success message
-    toast({
-      title: "Lista de reposição criada",
-      description: `A lista "${listName}" foi criada com ${restockItems.length} produtos.`,
-    });
-    
-    // Reset form
+    // Reset form for next time
     setSelectedProducts(new Map());
     setListName('Lista de Reposição');
     
-    // Notify parent component
+    // Notify parent component with the full list object
     if (onListCreated) {
-      onListCreated();
+      onListCreated(newList);
     }
   };
 
