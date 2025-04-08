@@ -10,7 +10,7 @@ interface RestockHistoryItem {
   name: string;
   createdAt: Date;
   status: 'completed' | 'cancelled' | 'active';
-  itemCount: number;
+  itemCount?: number; // Make itemCount optional to match ActiveRestockList
 }
 
 interface RestockHistoryProps {
