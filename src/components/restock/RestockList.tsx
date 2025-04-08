@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
-import { Check, ShoppingCart, Trash2, Save, Plus, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { AlertTriangle, Plus } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
 import { useOffline } from '@/contexts/OfflineContext';
-import RestockItem from './RestockItem';
+import RestockListHeader from './RestockListHeader';
+import ListNameInput from './ListNameInput';
+import ProductSection from './ProductSection';
+import RestockListFooter from './RestockListFooter';
 
 interface RestockListProps {
   products: Product[];
@@ -83,98 +84,48 @@ const RestockList: React.FC<RestockListProps> = ({ products, onListCreated }) =>
     }
   };
 
+  const handleClearSelection = () => {
+    setSelectedProducts(new Map());
+  };
+
   const lowStockProducts = products.filter(product => product.currentStock < product.minStock);
   const otherProducts = products.filter(product => product.currentStock >= product.minStock);
 
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <ShoppingCart className="h-5 w-5" />
-          <span>Criar Lista de Reposição</span>
-        </CardTitle>
-      </CardHeader>
+      <RestockListHeader />
       
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-4">
-          <Input 
-            value={listName}
-            onChange={(e) => setListName(e.target.value)}
-            placeholder="Nome da lista de reposição"
-            className="flex-1"
-          />
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => setSelectedProducts(new Map())}
-          >
-            <Trash2 className="h-4 w-4 mr-1" /> Limpar
-          </Button>
-        </div>
+        <ListNameInput
+          listName={listName}
+          onListNameChange={setListName}
+          onClear={handleClearSelection}
+        />
         
-        <div className="border-t pt-4">
-          <h3 className="font-medium mb-2 text-red-500 flex items-center">
-            <AlertTriangle className="h-4 w-4 mr-1" />
-            Produtos com Estoque Baixo
-          </h3>
-          
-          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
-            {lowStockProducts.length > 0 ? (
-              lowStockProducts.map(product => (
-                <RestockItem
-                  key={product.id}
-                  product={product}
-                  onSelect={handleProductSelect}
-                  isSelected={selectedProducts.has(product.id)}
-                  selectedQuantity={selectedProducts.get(product.id) || 1}
-                />
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground py-2">
-                Não há produtos com estoque baixo.
-              </p>
-            )}
-          </div>
-        </div>
+        <ProductSection
+          title="Produtos com Estoque Baixo"
+          icon={<AlertTriangle className="h-4 w-4 mr-1" />}
+          products={lowStockProducts}
+          selectedProducts={selectedProducts}
+          onProductSelect={handleProductSelect}
+          isLowStock={true}
+        />
         
-        <div className="border-t pt-4">
-          <h3 className="font-medium mb-2 flex items-center">
-            <Plus className="h-4 w-4 mr-1" />
-            Outros Produtos
-          </h3>
-          
-          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
-            {otherProducts.length > 0 ? (
-              otherProducts.map(product => (
-                <RestockItem
-                  key={product.id}
-                  product={product}
-                  onSelect={handleProductSelect}
-                  isSelected={selectedProducts.has(product.id)}
-                  selectedQuantity={selectedProducts.get(product.id) || 1}
-                />
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground py-2">
-                Não há outros produtos disponíveis.
-              </p>
-            )}
-          </div>
-        </div>
+        <ProductSection
+          title="Outros Produtos"
+          icon={<Plus className="h-4 w-4 mr-1" />}
+          products={otherProducts}
+          selectedProducts={selectedProducts}
+          onProductSelect={handleProductSelect}
+        />
       </CardContent>
       
-      <CardFooter className="justify-between border-t pt-4">
-        <div className="text-sm">
-          {selectedProducts.size} produtos selecionados
-        </div>
-        <Button onClick={handleSaveList}>
-          <Save className="h-4 w-4 mr-2" />
-          Salvar Lista
-        </Button>
-      </CardFooter>
+      <RestockListFooter
+        selectedProductsCount={selectedProducts.size}
+        onSave={handleSaveList}
+      />
     </Card>
   );
 };
 
 export default RestockList;
-
