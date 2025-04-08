@@ -37,7 +37,7 @@ const RestockItem: React.FC<RestockItemProps> = ({
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value) || 1;
-    const newQuantity = Math.max(1, Math.min(value, product.currentStock));
+    const newQuantity = Math.max(1, Math.min(value, 100)); // Allow up to 100 items
     setQuantity(newQuantity);
     
     if (isSelected && onSelect) {
@@ -46,8 +46,8 @@ const RestockItem: React.FC<RestockItemProps> = ({
   };
 
   const handleIncrement = () => {
-    if (quantity < product.currentStock) {
-      const newQuantity = quantity + 1;
+    const newQuantity = quantity + 1;
+    if (newQuantity <= 100) { // Allow up to 100 items
       setQuantity(newQuantity);
       
       if (isSelected && onSelect) {
@@ -107,7 +107,7 @@ const RestockItem: React.FC<RestockItemProps> = ({
             <Input
               type="number"
               min={1}
-              max={product.currentStock}
+              max={100}
               value={quantity}
               onChange={handleQuantityChange}
               className="h-8 w-16 border-0 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -123,15 +123,17 @@ const RestockItem: React.FC<RestockItemProps> = ({
           </div>
         )}
       
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-1"
-          onClick={handleMarkAsRestocked}
-        >
-          <CheckCircle2 className="h-4 w-4" />
-          <span>Reposto</span>
-        </Button>
+        {onMarkAsRestocked && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            onClick={handleMarkAsRestocked}
+          >
+            <CheckCircle2 className="h-4 w-4" />
+            <span>Reposto</span>
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -52,7 +52,7 @@ const TopRestockedCard = () => {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Ranking de Vendas</CardTitle>
+        <CardTitle className="text-base">Produtos Mais Vendidos</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x">
