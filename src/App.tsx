@@ -9,27 +9,34 @@ import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Batches from "./pages/Batches";
 import Restock from "./pages/Restock";
+import Movements from "./pages/Movements";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
+import { OfflineProvider } from "./contexts/OfflineContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/produtos" element={<Products />} />
-            <Route path="/lotes" element={<Batches />} />
-            <Route path="/reposicao" element={<Restock />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <OfflineProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/produtos" element={<Products />} />
+              <Route path="/lotes" element={<Batches />} />
+              <Route path="/reposicao" element={<Restock />} />
+              <Route path="/movimentacoes" element={<Movements />} />
+              <Route path="/relatorios" element={<Reports />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </OfflineProvider>
   </QueryClientProvider>
 );
 

@@ -1,3 +1,4 @@
+
 // Product data types
 export type Product = {
   id: string;
@@ -33,6 +34,7 @@ export type Movement = {
   quantity: number;
   date: Date;
   notes?: string;
+  userId?: string;
 };
 
 // User roles
@@ -43,4 +45,18 @@ export type User = {
   name: string;
   email: string;
   role: UserRole;
+};
+
+// Report types
+export type ReportType = 'daily' | 'weekly' | 'monthly';
+export type ReportCategory = 'movements' | 'expiring' | 'lowStock' | 'topRestocked';
+
+export type ReportOptions = {
+  type: ReportType;
+  category: ReportCategory;
+  startDate?: Date;
+  endDate?: Date;
+  includeProducts?: string[];
+  includeUsers?: string[];
+  includeMovementTypes?: MovementType[];
 };
