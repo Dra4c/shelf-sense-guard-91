@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Barcode, Save, Calendar as CalendarIcon } from 'lucide-react';
+import { Barcode, Save, Calendar as CalendarIcon, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type ProductFormValues = {
   name: string;
@@ -22,6 +23,7 @@ type ProductFormValues = {
   minStock: number;
   image?: string;
   expiryDate?: Date;
+  unit: 'unidade' | 'caixa' | 'fardo';
 };
 
 interface ProductFormProps {
@@ -41,6 +43,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialData, onCanc
       minStock: initialData?.minStock || 10,
       image: initialData?.image || '',
       expiryDate: initialData?.expiryDate,
+      unit: initialData?.unit || 'unidade',
     },
   });
   
@@ -151,6 +154,53 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialData, onCanc
           />
         </div>
         
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="unit"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Unidade de medida</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione uma unidade" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="unidade">Unidade</SelectItem>
+                    <SelectItem value="caixa">Caixa</SelectItem>
+                    <SelectItem value="fardo">Fardo</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="minStock"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Estoque mínimo</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="Estoque mínimo" 
+                    {...field} 
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        
         <FormField
           control={form.control}
           name="barcode"
@@ -170,25 +220,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, initialData, onCanc
                   <Barcode className="h-4 w-4" />
                 </Button>
               </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="minStock"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Estoque mínimo</FormLabel>
-              <FormControl>
-                <Input 
-                  type="number" 
-                  placeholder="Estoque mínimo" 
-                  {...field} 
-                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} 
-                />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}

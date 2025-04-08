@@ -1,65 +1,71 @@
 
-import { Product } from '../types';
-import { addDays } from './utils';
+import { Product } from '@/types';
 
-// Current date to calculate relative expiry dates
-const now = new Date();
-
-// Sample Products
 export const products: Product[] = [
   {
-    id: "1",
+    id: "prod_1",
+    name: "Arroz Integral",
+    category: "Alimentos",
+    brand: "Tio João",
+    barcode: "7898357410015",
+    minStock: 10,
+    currentStock: 5,
+    expiryDate: new Date(2024, 9, 15),
+    unit: "unidade"
+  },
+  {
+    id: "prod_2",
+    name: "Feijão Carioca",
+    category: "Alimentos",
+    brand: "Camil",
+    barcode: "7898357410022",
+    minStock: 15,
+    currentStock: 8,
+    expiryDate: new Date(2024, 8, 20),
+    unit: "fardo"
+  },
+  {
+    id: "prod_3",
+    name: "Macarrão Espaguete",
+    category: "Alimentos",
+    brand: "Barilla",
+    barcode: "7898357410039",
+    minStock: 20,
+    currentStock: 25,
+    expiryDate: new Date(2024, 11, 10),
+    unit: "caixa"
+  },
+  {
+    id: "prod_4",
+    name: "Azeite Extra Virgem",
+    category: "Alimentos",
+    brand: "Gallo",
+    barcode: "7898357410046",
+    minStock: 8,
+    currentStock: 3,
+    expiryDate: new Date(2024, 12, 5),
+    unit: "unidade"
+  },
+  {
+    id: "prod_5",
     name: "Leite Integral",
     category: "Laticínios",
-    brand: "Fazenda Feliz",
-    barcode: "7891234567890",
-    minStock: 20,
-    image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&q=80",
-    currentStock: 18,
-    expiryDate: addDays(now, 15),
+    brand: "Itambé",
+    barcode: "7898357410053",
+    minStock: 30,
+    currentStock: 12,
+    expiryDate: new Date(2024, 6, 25),
+    unit: "caixa"
   },
   {
-    id: "2",
-    name: "Arroz Branco",
-    category: "Grãos",
-    brand: "Grão Dourado",
-    barcode: "7891234567891",
-    minStock: 15,
-    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80",
-    currentStock: 25,
-    expiryDate: addDays(now, 180),
-  },
-  {
-    id: "3",
-    name: "Feijão Preto",
-    category: "Grãos",
-    brand: "Grão Dourado",
-    barcode: "7891234567892",
-    minStock: 15,
-    image: "https://images.unsplash.com/photo-1551462147-37885acc36f1?auto=format&fit=crop&q=80", 
-    currentStock: 5,
-    expiryDate: addDays(now, 160),
-  },
-  {
-    id: "4",
+    id: "prod_6",
     name: "Café em Pó",
     category: "Bebidas",
-    brand: "Café Brasil",
-    barcode: "7891234567893",
-    minStock: 10,
-    image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&q=80",
-    currentStock: 8,
-    expiryDate: addDays(now, 90),
-  },
-  {
-    id: "5",
-    name: "Óleo de Soja",
-    category: "Óleos",
-    brand: "GotaDOuro",
-    barcode: "7891234567894",
+    brand: "Pilão",
+    barcode: "7898357410060",
     minStock: 12,
-    image: "https://images.unsplash.com/photo-1620574387735-3624a33a1ece?auto=format&fit=crop&q=80",
-    currentStock: 22,
-    expiryDate: addDays(now, 365),
-  },
+    currentStock: 14,
+    expiryDate: new Date(2024, 10, 18),
+    unit: "unidade"
+  }
 ];

@@ -1,4 +1,3 @@
-
 // Product data types
 export type Product = {
   id: string;
@@ -10,6 +9,7 @@ export type Product = {
   image?: string;
   currentStock: number;
   expiryDate?: Date;
+  unit: 'unidade' | 'caixa' | 'fardo';
 };
 
 // Batch data types

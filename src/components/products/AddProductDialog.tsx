@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,7 +24,6 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
   const [isScanning, setIsScanning] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState<string | null>(null);
 
-  // Clean up scanner when dialog closes
   useEffect(() => {
     if (!open && isScanning) {
       stopScan();
@@ -33,17 +31,14 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
   }, [open]);
 
   const handleSubmit = (data: Omit<Product, 'id' | 'currentStock'>) => {
-    // Create a new product with the submitted data
     const newProduct: Product = {
       ...data,
       id: 'prod_' + Math.random().toString(36).substring(2, 9),
-      currentStock: 0
+      currentStock: 0,
+      unit: data.unit
     };
 
-    // Call the callback function to add the product
     onProductAdded(newProduct);
-
-    // Close the dialog
     onOpenChange(false);
   };
 
@@ -54,7 +49,6 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
       if (status.granted) {
         setIsScanning(true);
         
-        // Make background transparent
         document.querySelector('body')?.classList.add('scanner-active');
         await BarcodeScanner.hideBackground();
         
@@ -70,7 +64,6 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
           });
         }
         
-        // Restore normal state
         document.querySelector('body')?.classList.remove('scanner-active');
         setIsScanning(false);
         await BarcodeScanner.showBackground();
@@ -85,7 +78,6 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
     } catch (error) {
       console.error('Scanning error:', error);
       
-      // Clean up if there's an error
       document.querySelector('body')?.classList.remove('scanner-active');
       setIsScanning(false);
       await BarcodeScanner.showBackground();
@@ -110,7 +102,6 @@ const AddProductDialog: React.FC<AddProductDialogProps> = ({
     startScan();
   };
 
-  // Show scanner UI if scanning
   if (isScanning) {
     return (
       <Dialog open={open} onOpenChange={(newOpen) => {

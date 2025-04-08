@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Plus, Search, Filter, Barcode } from 'lucide-react';
+import { Plus, Search, Filter, Barcode, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ProductCard from '@/components/products/ProductCard';
@@ -15,7 +14,10 @@ import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState<Product[]>(initialProducts.map(p => ({
+    ...p,
+    unit: p.unit || 'unidade' // Fornecer valor padrão para produtos existentes
+  })));
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const isMobile = useIsMobile();
@@ -32,35 +34,27 @@ const Products = () => {
 
   const startScan = async () => {
     try {
-      // Check camera permission
       const status = await BarcodeScanner.checkPermission({ force: true });
       
       if (status.granted) {
-        // Make background transparent to show camera preview
         document.querySelector('body')?.classList.add('scanner-active');
-        
-        // Start scanning
         setIsScanning(true);
         await BarcodeScanner.hideBackground();
         const result = await BarcodeScanner.startScan();
         
-        // If we got a barcode
         if (result.hasContent) {
           const scannedBarcode = result.content;
           
-          // Close the scanner
           document.querySelector('body')?.classList.remove('scanner-active');
           setIsScanning(false);
           await BarcodeScanner.showBackground();
           await BarcodeScanner.stopScan();
           
-          // Show toast and open the add dialog with the scanned barcode
           toast({
             title: "Código de barras detectado",
             description: `Código ${scannedBarcode} identificado. Complete os dados do produto.`,
           });
           
-          // Open add dialog with the scanned barcode
           setIsAddDialogOpen(true);
           
           return scannedBarcode;
@@ -75,7 +69,6 @@ const Products = () => {
     } catch (error) {
       console.error('Scanning error:', error);
       
-      // Clean up if there's an error
       document.querySelector('body')?.classList.remove('scanner-active');
       setIsScanning(false);
       await BarcodeScanner.showBackground();
@@ -90,7 +83,6 @@ const Products = () => {
   };
 
   const stopScan = async () => {
-    // Restore normal state
     document.querySelector('body')?.classList.remove('scanner-active');
     setIsScanning(false);
     await BarcodeScanner.showBackground();
@@ -109,7 +101,6 @@ const Products = () => {
     });
   };
 
-  // Show scanner UI when scanning is active
   if (isScanning) {
     return (
       <div className="scanner-ui fixed inset-0 flex flex-col items-center justify-center z-50">
@@ -127,7 +118,6 @@ const Products = () => {
     );
   }
 
-  // Renderização condicional baseada no dispositivo
   if (isMobile) {
     return (
       <div className="space-y-4 pb-16 animate-fade-in">
@@ -219,7 +209,6 @@ const Products = () => {
     );
   }
 
-  // Versão para desktop
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
