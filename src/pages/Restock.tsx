@@ -45,7 +45,7 @@ const Restock = () => {
   return (
     <div className="space-y-4">
       <PageHeader
-        heading="Reposição de Produtos"
+        title="Reposição de Produtos"
         description="Crie e gerencie listas de reposição para produtos com estoque baixo."
       >
         <div className="flex items-center gap-4">
