@@ -15,7 +15,7 @@ interface RestockHistoryItem {
 
 interface RestockHistoryProps {
   history: RestockHistoryItem[];
-  onViewList: (listId: string) => void;
+  onViewList: (listId: string, historyView?: boolean) => void;
 }
 
 const RestockHistory: React.FC<RestockHistoryProps> = ({ history, onViewList }) => {
@@ -73,7 +73,11 @@ const RestockHistory: React.FC<RestockHistoryProps> = ({ history, onViewList }) 
                 </div>
                 <div className="flex items-center space-x-4">
                   {getStatusBadge(item.status)}
-                  <Button variant="ghost" size="sm" onClick={() => onViewList(item.id)}>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => onViewList(item.id, true)}
+                  >
                     <Eye className="h-4 w-4" />
                   </Button>
                 </div>

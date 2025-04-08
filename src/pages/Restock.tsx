@@ -1,70 +1,198 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PageHeader } from '@/components/ui/page-header';
+import { useToast } from '@/hooks/use-toast';
+import { Product } from '@/types';
 import RestockList from '@/components/restock/RestockList';
-import RestockHistory from '@/components/restock/RestockHistory';
+import LowStockTab from '@/components/restock/LowStockTab';
 import ActiveRestockSheet from '@/components/restock/ActiveRestockSheet';
-import { products } from '@/data/products';
-import { useRestockManagement } from '@/hooks/useRestockManagement';
-import { OfflineIndicator } from '@/components/status/OfflineIndicator';
+import RestockHistory from '@/components/restock/RestockHistory';
+import { products as initialProducts } from '@/data/products';
+
+// Mock history data
+const historyData = [
+  {
+    id: 'hist_1',
+    name: 'Reposição Semanal',
+    createdAt: new Date(2025, 3, 1, 10, 30),
+    status: 'completed' as const,
+    itemCount: 12
+  },
+  {
+    id: 'hist_2',
+    name: 'Reposição Prioridades',
+    createdAt: new Date(2025, 3, 5, 9, 15),
+    status: 'cancelled' as const,
+    itemCount: 5
+  },
+  {
+    id: 'hist_3',
+    name: 'Reposição Emergencial',
+    createdAt: new Date(2025, 3, 7, 14, 45),
+    status: 'active' as const,
+    itemCount: 3
+  }
+];
 
 const Restock = () => {
-  const {
-    products: managedProducts,
-    lowStockProducts,
-    activeList,
-    restockHistory,
-    handleMarkAsRestocked,
-    handleListCreated,
-    handleConfirmRestock,
-    handleCancelRestock,
-    handleProductStockChange,
-    handleViewHistoryList
-  } = useRestockManagement(products);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [lowStockProducts, setLowStockProducts] = useState<Product[]>([]);
+  const [activeList, setActiveList] = useState<any>(null);
+  const [historyList, setHistoryList] = useState<any[]>(historyData);
+  const [historyView, setHistoryView] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Filter low stock products
+    const lowStock = products.filter(p => p.currentStock < p.minStock);
+    setLowStockProducts(lowStock);
+  }, [products]);
+
+  const handleListCreated = (list: any) => {
+    setActiveList(list);
+    
+    // Add to history
+    const listWithCount = {
+      ...list,
+      itemCount: list.items.length
+    };
+    
+    setHistoryList([listWithCount, ...historyList]);
+    
+    toast({
+      title: "Lista de reposição criada",
+      description: `Lista "${list.name}" com ${list.items.length} produtos foi criada com sucesso.`
+    });
+  };
+
+  const handleMarkAsRestocked = (productId: string) => {
+    // In a real app, this would update the database
+    // For this demo, we'll just update the local state
+    
+    setLowStockProducts(prev => prev.filter(p => p.id !== productId));
+    
+    toast({
+      title: "Produto reposto",
+      description: "Produto marcado como reposto com sucesso."
+    });
+  };
+
+  const handleProductStockChange = (productId: string, newQuantity: number) => {
+    setProducts(prev => 
+      prev.map(p => 
+        p.id === productId ? { ...p, currentStock: newQuantity } : p
+      )
+    );
+  };
+
+  const handleListConfirmed = () => {
+    if (!activeList) return;
+    
+    // Update list status
+    const updatedList = { ...activeList, status: 'completed' };
+    
+    // Update history
+    setHistoryList(prev => 
+      prev.map(item => 
+        item.id === updatedList.id ? { ...item, status: 'completed' } : item
+      )
+    );
+    
+    setActiveList(null);
+    
+    toast({
+      title: "Reposição concluída",
+      description: "Lista de reposição marcada como concluída com sucesso."
+    });
+  };
+
+  const handleListCancelled = () => {
+    if (!activeList) return;
+    
+    // Update list status
+    const updatedList = { ...activeList, status: 'cancelled' };
+    
+    // Update history
+    setHistoryList(prev => 
+      prev.map(item => 
+        item.id === updatedList.id ? { ...item, status: 'cancelled' } : item
+      )
+    );
+    
+    // Return products to inventory
+    activeList.items.forEach((item: any) => {
+      const product = products.find(p => p.id === item.productId);
+      if (product) {
+        handleProductStockChange(item.productId, product.currentStock + item.quantity);
+      }
+    });
+    
+    setActiveList(null);
+    
+    toast({
+      title: "Reposição cancelada",
+      description: "Lista de reposição cancelada. Os produtos foram devolvidos ao estoque."
+    });
+  };
+
+  const handleViewListFromHistory = (listId: string, isHistoryView = false) => {
+    const list = historyList.find(item => item.id === listId);
+    if (list) {
+      setHistoryView(isHistoryView);
+      setActiveList(list);
+    }
+  };
+
+  const handleCloseActiveList = () => {
+    setActiveList(null);
+    setHistoryView(false);
+  };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Reposição</h1>
-          <p className="text-muted-foreground">
-            Crie listas de reposição e acompanhe itens que precisam ser repostos.
-          </p>
-        </div>
-        <OfflineIndicator />
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Lista de Reposição</h2>
-          <Button variant="outline" size="sm" className="gap-1">
-            <RefreshCw className="h-4 w-4" />
-            Atualizar
-          </Button>
-        </div>
-
-        <RestockList 
-          products={managedProducts}
-          onListCreated={handleListCreated}
-          onProductStockChange={handleProductStockChange}
-        />
-      </div>
-
-      {/* Display restock history */}
-      <RestockHistory 
-        history={restockHistory} 
-        onViewList={handleViewHistoryList} 
+    <div className="space-y-6">
+      <PageHeader
+        title="Reposição de Produtos"
+        description="Gerencie a reposição de produtos nas prateleiras"
       />
-
-      {/* Active sheet for restock list */}
-      <ActiveRestockSheet
+      
+      <Tabs defaultValue="new">
+        <TabsList>
+          <TabsTrigger value="new">Nova Lista</TabsTrigger>
+          <TabsTrigger value="active">Lista Ativa</TabsTrigger>
+          <TabsTrigger value="history">Histórico</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="new" className="space-y-4">
+          <RestockList 
+            products={products}
+            onListCreated={handleListCreated}
+            onProductStockChange={handleProductStockChange}
+          />
+        </TabsContent>
+        
+        <TabsContent value="active" className="space-y-4">
+          <LowStockTab 
+            lowStockProducts={lowStockProducts}
+            onMarkAsRestocked={handleMarkAsRestocked}
+          />
+        </TabsContent>
+        
+        <TabsContent value="history" className="space-y-4">
+          <RestockHistory 
+            history={historyList}
+            onViewList={handleViewListFromHistory}
+          />
+        </TabsContent>
+      </Tabs>
+      
+      <ActiveRestockSheet 
         activeList={activeList}
-        products={managedProducts}
-        onClose={() => {}}
-        onConfirm={handleConfirmRestock}
-        onCancel={handleCancelRestock}
+        products={products}
+        onClose={handleCloseActiveList}
+        onConfirm={handleListConfirmed}
+        onCancel={handleListCancelled}
+        historyView={historyView}
       />
     </div>
   );

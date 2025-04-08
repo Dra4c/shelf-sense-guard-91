@@ -29,6 +29,7 @@ interface ActiveRestockSheetProps {
   onClose: () => void;
   onConfirm: () => void;
   onCancel: () => void;
+  historyView?: boolean;
 }
 
 const ActiveRestockSheet: React.FC<ActiveRestockSheetProps> = ({
@@ -36,14 +37,15 @@ const ActiveRestockSheet: React.FC<ActiveRestockSheetProps> = ({
   products,
   onClose,
   onConfirm,
-  onCancel
+  onCancel,
+  historyView = false
 }) => {
   if (!activeList) return null;
 
   const isCompleted = activeList.status === 'completed';
   const isCancelled = activeList.status === 'cancelled';
-  const isReadOnly = isCompleted || isCancelled;
-  const isHistoryView = isReadOnly;
+  const isReadOnly = isCompleted || isCancelled || historyView;
+  const isHistoryView = isReadOnly || historyView;
 
   const getStatusLabel = () => {
     if (isCompleted) return "Concluída";
