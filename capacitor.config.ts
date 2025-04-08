@@ -17,7 +17,6 @@ const config: CapacitorConfig = {
       splashFullScreen: true,
       splashImmersive: true
     },
-    // Add specific configuration for BarcodeScanner if needed
     BarcodeScanner: {
       // No specific config needed, using defaults
     }
