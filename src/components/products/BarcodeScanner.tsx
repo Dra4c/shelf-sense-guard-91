@@ -6,7 +6,7 @@ interface BarcodeScannerProps {
   onStopScan: () => void;
 }
 
-const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onStopScan }) => {
+const BarcodeScannerUI: React.FC<BarcodeScannerProps> = ({ onStopScan }) => {
   return (
     <div className="scanner-ui fixed inset-0 flex flex-col items-center justify-center z-50">
       <div className="scan-region p-4 border-2 border-primary rounded-lg mb-4">
@@ -23,4 +23,4 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onStopScan }) => {
   );
 };
 
-export default BarcodeScanner;
+export default BarcodeScannerUI;

@@ -1,19 +1,16 @@
 
 import React, { useState } from 'react';
-import { Plus, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { products as initialProducts } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
 import AddProductDialog from '@/components/products/AddProductDialog';
 import { Product } from '@/types';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner as BarcodeScannerPlugin } from '@capacitor-community/barcode-scanner';
 import ProductsHeader from '@/components/products/ProductsHeader';
 import ProductSearch from '@/components/products/ProductSearch';
 import ProductGrid from '@/components/products/ProductGrid';
 import ProductActions from '@/components/products/ProductActions';
-import BarcodeScanner from '@/components/products/BarcodeScanner';
+import BarcodeScannerUI from '@/components/products/BarcodeScanner';
 import AddProductDrawer from '@/components/products/AddProductDrawer';
 
 const Products = () => {
@@ -38,21 +35,21 @@ const Products = () => {
 
   const startScan = async () => {
     try {
-      const status = await BarcodeScanner.checkPermission({ force: true });
+      const status = await BarcodeScannerPlugin.checkPermission({ force: true });
       
       if (status.granted) {
         document.querySelector('body')?.classList.add('scanner-active');
         setIsScanning(true);
-        await BarcodeScanner.hideBackground();
-        const result = await BarcodeScanner.startScan();
+        await BarcodeScannerPlugin.hideBackground();
+        const result = await BarcodeScannerPlugin.startScan();
         
         if (result.hasContent) {
           const scannedBarcode = result.content;
           
           document.querySelector('body')?.classList.remove('scanner-active');
           setIsScanning(false);
-          await BarcodeScanner.showBackground();
-          await BarcodeScanner.stopScan();
+          await BarcodeScannerPlugin.showBackground();
+          await BarcodeScannerPlugin.stopScan();
           
           toast({
             title: "Código de barras detectado",
@@ -75,8 +72,8 @@ const Products = () => {
       
       document.querySelector('body')?.classList.remove('scanner-active');
       setIsScanning(false);
-      await BarcodeScanner.showBackground();
-      await BarcodeScanner.stopScan();
+      await BarcodeScannerPlugin.showBackground();
+      await BarcodeScannerPlugin.stopScan();
       
       toast({
         title: "Erro no scanner",
@@ -89,8 +86,8 @@ const Products = () => {
   const stopScan = async () => {
     document.querySelector('body')?.classList.remove('scanner-active');
     setIsScanning(false);
-    await BarcodeScanner.showBackground();
-    await BarcodeScanner.stopScan();
+    await BarcodeScannerPlugin.showBackground();
+    await BarcodeScannerPlugin.stopScan();
   };
 
   const handleBarcodeScan = () => {
@@ -106,7 +103,7 @@ const Products = () => {
   };
 
   if (isScanning) {
-    return <BarcodeScanner onStopScan={stopScan} />;
+    return <BarcodeScannerUI onStopScan={stopScan} />;
   }
 
   if (isMobile) {
