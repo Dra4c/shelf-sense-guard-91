@@ -7,7 +7,8 @@ import {
   Archive, 
   ClipboardList, 
   BarChart, 
-  Settings 
+  Settings,
+  ArrowDownUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -25,6 +26,7 @@ const menuItems = [
   { icon: Package, label: 'Produtos', path: '/produtos' },
   { icon: Archive, label: 'Lotes', path: '/lotes' },
   { icon: ClipboardList, label: 'Reposição', path: '/reposicao' },
+  { icon: ArrowDownUp, label: 'Movimentações', path: '/movimentacoes' },
   { icon: BarChart, label: 'Relatórios', path: '/relatorios' },
 ];
 

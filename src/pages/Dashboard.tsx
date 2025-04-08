@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Package, 
@@ -24,8 +25,8 @@ const Dashboard = () => {
   const stats = getStats();
   const [timeframe, setTimeframe] = useState('week');
 
-  // Mock data for "Top Replenished" chart
-  const topRestockedData = [
+  // Mock data for "Produtos Mais Vendidos" chart
+  const topSellingData = [
     { name: "Arroz 5kg", count: 28, valor: 280 },
     { name: "Café 500g", count: 24, valor: 240 },
     { name: "Feijão 1kg", count: 18, valor: 180 },
@@ -77,11 +78,11 @@ const Dashboard = () => {
               <CardTitle className="text-base">
                 <div className="flex items-center">
                   <ArrowDownUp className="h-5 w-5 mr-2 text-purple-500" />
-                  Top Repostos
+                  Produtos Mais Vendidos
                 </div>
               </CardTitle>
               <CardDescription>
-                Produtos mais repostos nas prateleiras
+                Produtos com maior volume de vendas
               </CardDescription>
             </div>
             <Select defaultValue={timeframe} onValueChange={setTimeframe}>
@@ -98,7 +99,7 @@ const Dashboard = () => {
           <CardContent>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topRestockedData} layout="vertical">
+                <BarChart data={topSellingData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                   <XAxis type="number" />
                   <YAxis 
@@ -107,10 +108,10 @@ const Dashboard = () => {
                     width={100}
                     tick={{ fontSize: 12 }}
                   />
-                  <Tooltip formatter={(value) => [`${value} reposições`, 'Quantidade']} />
+                  <Tooltip formatter={(value) => [`${value} vendidos`, 'Quantidade']} />
                   <Bar 
                     dataKey="count" 
-                    name="Reposições" 
+                    name="Vendidos" 
                     fill="#8884d8" 
                     radius={[0, 4, 4, 0]} 
                     barSize={20}
