@@ -6,13 +6,15 @@ import { CardHeader, CardTitle } from '@/components/ui/card';
 interface RestockListHeaderProps {
   activeList?: boolean;
   startTime?: Date;
+  historyView?: boolean;
 }
 
-const RestockListHeader: React.FC<RestockListHeaderProps> = ({ activeList, startTime }) => {
+const RestockListHeader: React.FC<RestockListHeaderProps> = ({ activeList, startTime, historyView }) => {
   const [elapsedTime, setElapsedTime] = React.useState<string>('');
 
   React.useEffect(() => {
-    if (!activeList || !startTime) return;
+    // Skip timer functionality for history view
+    if (!activeList || !startTime || historyView) return;
 
     const calculateElapsedTime = () => {
       const now = new Date();
@@ -26,14 +28,14 @@ const RestockListHeader: React.FC<RestockListHeaderProps> = ({ activeList, start
     const interval = setInterval(calculateElapsedTime, 1000);
     
     return () => clearInterval(interval);
-  }, [activeList, startTime]);
+  }, [activeList, startTime, historyView]);
 
   return (
     <CardHeader>
       <CardTitle className="flex items-center gap-2">
         <ShoppingCart className="h-5 w-5" />
         <span>{activeList ? 'Lista de Reposição Ativa' : 'Criar Lista de Reposição'}</span>
-        {activeList && startTime && (
+        {activeList && startTime && !historyView && (
           <div className="ml-auto flex items-center text-sm text-muted-foreground">
             <Clock className="h-4 w-4 mr-1" />
             <span>{elapsedTime}</span>

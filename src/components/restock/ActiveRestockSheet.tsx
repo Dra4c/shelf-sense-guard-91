@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Card, CardContent } from '@/components/ui/card';
@@ -84,7 +83,11 @@ const ActiveRestockSheet: React.FC<ActiveRestockSheetProps> = ({
     <Sheet open={!!activeList} onOpenChange={(open) => !open && onClose()}>
       <SheetContent className="w-full sm:max-w-md">
         <Card className={`w-full border-none shadow-none ${isHistoryView ? 'bg-amber-50' : ''}`}>
-          <RestockListHeader activeList={true} startTime={activeList.createdAt} />
+          <RestockListHeader 
+            activeList={true} 
+            startTime={activeList.createdAt} 
+            historyView={isHistoryView} 
+          />
           
           <CardContent className="space-y-4">
             <div className="pb-2 border-b">
