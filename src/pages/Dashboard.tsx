@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Package, 
@@ -19,7 +18,7 @@ import AlertsCard from '@/components/dashboard/AlertsCard';
 import LowStockCard from '@/components/dashboard/LowStockCard';
 import TopRestockedCard from '@/components/dashboard/TopRestockedCard';
 import { OfflineIndicator } from '@/components/status/OfflineIndicator';
-import { getStats } from '@/data/mockData';
+import { getStats } from '@/data/stats';
 
 const Dashboard = () => {
   const stats = getStats();

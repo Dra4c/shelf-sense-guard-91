@@ -11,7 +11,8 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import BatchItem from '@/components/batch/BatchItem';
-import { batches, products } from '@/data/mockData';
+import { batches } from '@/data/batches';
+import { products } from '@/data/products';
 import { Batch } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 

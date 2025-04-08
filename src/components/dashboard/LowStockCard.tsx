@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Product } from '@/types';
 import StockIndicator from '../status/StockIndicator';
-import { products } from '@/data/mockData';
+import { products } from '@/data/products';
 
 // Get low stock products
 const getLowStockProducts = () => {

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { Filter, Calendar as CalendarIcon, RefreshCw } from 'lucide-react';
 import MovementsTable from '@/components/movements/MovementsTable';
 import { useOffline } from '@/contexts/OfflineContext';
-import { getMockMovements } from '@/data/mockData';
+import { getMockMovements } from '@/data/movements';
 
 const Movements = () => {
   const { isOffline } = useOffline();

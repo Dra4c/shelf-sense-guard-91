@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Batch, Product } from '@/types';
 import StatusBadge from '../status/StatusBadge';
-import { batches, products } from '@/data/mockData';
+import { batches } from '@/data/batches';
+import { products } from '@/data/products';
 
 // Get all expired or expiring batches
 const getAlertBatches = () => {

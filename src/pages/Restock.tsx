@@ -11,7 +11,9 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import RestockItem from '@/components/restock/RestockItem';
-import { products, batches, movements } from '@/data/mockData';
+import { products } from '@/data/products';
+import { batches } from '@/data/batches';
+import { movements } from '@/data/movements';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Product, Movement } from '@/types';
