@@ -11,6 +11,7 @@ interface RestockHistoryItem {
   createdAt: Date;
   status: 'completed' | 'cancelled' | 'active';
   itemCount?: number; // Make itemCount optional to match ActiveRestockList
+  items?: Array<{ productId: string; name: string; quantity: number }>; // Add items property to fix the map error
 }
 
 interface RestockHistoryProps {
@@ -68,7 +69,7 @@ const RestockHistory: React.FC<RestockHistoryProps> = ({ history, onViewList }) 
                   <h3 className="font-medium">{item.name}</h3>
                   <div className="flex items-center text-sm text-muted-foreground space-x-4">
                     <span>{formatDistanceToNow(item.createdAt, { addSuffix: true })}</span>
-                    <span>{item.itemCount} itens</span>
+                    <span>{item.itemCount || (item.items && item.items.length) || 0} itens</span>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
