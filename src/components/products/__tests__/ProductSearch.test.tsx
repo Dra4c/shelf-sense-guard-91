@@ -39,7 +39,7 @@ describe('ProductSearch Component', () => {
     render(<ProductSearch searchTerm="" onSearchChange={mockOnSearchChange} />);
     
     // Search for the SVG icon by test ID or role
-    const searchIcon = document.querySelector('svg');
+    const searchIcon = screen.getByTestId('search-icon');
     expect(searchIcon).toBeInTheDocument();
   });
 });
