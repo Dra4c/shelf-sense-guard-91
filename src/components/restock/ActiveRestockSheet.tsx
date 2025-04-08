@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Card, CardContent } from '@/components/ui/card';
@@ -80,7 +81,18 @@ const ActiveRestockSheet: React.FC<ActiveRestockSheetProps> = ({
   };
 
   return (
-    <Sheet open={!!activeList} onOpenChange={(open) => !open && onClose()}>
+    <Sheet 
+      open={!!activeList} 
+      onOpenChange={(open) => {
+        // Only allow closing via the confirm/cancel buttons
+        if (!open && !isReadOnly) {
+          return;
+        }
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
       <SheetContent className="w-full sm:max-w-md">
         <Card className={`w-full border-none shadow-none ${isHistoryView ? 'bg-amber-50' : ''}`}>
           <RestockListHeader 

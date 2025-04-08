@@ -9,11 +9,25 @@ import { toast } from 'sonner';
 import { products as initialProducts } from '@/data/products';
 import { Product } from '@/types';
 import OfflineIndicator from '@/components/status/OfflineIndicator';
+import ActiveRestockSheet from '@/components/restock/ActiveRestockSheet';
+
+interface ActiveRestockList {
+  id: string;
+  name: string;
+  items: {
+    productId: string;
+    name: string;
+    quantity: number;
+  }[];
+  createdAt: Date;
+  status: 'active' | 'completed' | 'cancelled';
+}
 
 const Restock = () => {
   const { toast: hookToast } = useToast();
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [activeList, setActiveList] = useState<ActiveRestockList | null>(null);
 
   const handleProductStockChange = (productId: string, newQuantity: number) => {
     // Update product stock in the local state
@@ -36,10 +50,40 @@ const Restock = () => {
   };
 
   const handleListCreated = (list: any) => {
+    // Set the active list to show the sheet
+    setActiveList(list);
+    
     hookToast({
       title: "Lista de reposição criada",
       description: `${list.items.length} produtos adicionados à lista de reposição.`,
     });
+  };
+
+  const handleConfirmRestock = () => {
+    if (!activeList) return;
+    
+    // Process the restock confirmation
+    toast.success(`Lista "${activeList.name}" concluída com sucesso`);
+    
+    // Clear active list
+    setActiveList(null);
+  };
+
+  const handleCancelRestock = () => {
+    if (!activeList) return;
+    
+    // Return stock to inventory if cancelling
+    activeList.items.forEach(item => {
+      const product = products.find(p => p.id === item.productId);
+      if (product) {
+        handleProductStockChange(item.productId, product.currentStock + item.quantity);
+      }
+    });
+    
+    toast.error(`Lista "${activeList.name}" foi cancelada`);
+    
+    // Clear active list
+    setActiveList(null);
   };
 
   return (
@@ -77,6 +121,15 @@ const Restock = () => {
           onProductStockChange={handleProductStockChange}
         />
       </div>
+
+      {/* Active Restock Sheet */}
+      <ActiveRestockSheet 
+        activeList={activeList}
+        products={products}
+        onClose={() => {}} // Empty function to prevent closing by clicking outside
+        onConfirm={handleConfirmRestock}
+        onCancel={handleCancelRestock}
+      />
     </div>
   );
 };
