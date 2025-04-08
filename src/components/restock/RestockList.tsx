@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Plus } from 'lucide-react';
+import { AlertTriangle, Plus, Calendar } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
@@ -11,6 +11,7 @@ import ProductSection from './ProductSection';
 import RestockListFooter from './RestockListFooter';
 import RestockSearch from './RestockSearch';
 import ConfirmationDialog from '../ui/confirmation-dialog';
+import { format } from 'date-fns';
 
 interface RestockListProps {
   products: Product[];
@@ -111,6 +112,25 @@ const RestockList: React.FC<RestockListProps> = ({
     setFilteredProducts(results);
   };
 
+  const renderExpiryDate = (product: Product) => {
+    if (!product.expiryDate) return null;
+    
+    const today = new Date();
+    const expiryDate = new Date(product.expiryDate);
+    const daysToExpiry = Math.floor((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    let colorClass = 'text-status-ok';
+    if (daysToExpiry < 30) colorClass = 'text-status-warning';
+    if (daysToExpiry < 7) colorClass = 'text-status-danger';
+    
+    return (
+      <div className={`flex items-center text-xs ${colorClass}`}>
+        <Calendar className="h-3 w-3 mr-1" />
+        <span>Validade: {format(expiryDate, 'dd/MM/yyyy')}</span>
+      </div>
+    );
+  };
+
   const lowStockProducts = filteredProducts.filter(product => product.currentStock < product.minStock);
   const otherProducts = filteredProducts.filter(product => product.currentStock >= product.minStock);
 
@@ -140,6 +160,7 @@ const RestockList: React.FC<RestockListProps> = ({
             selectedProducts={selectedProducts}
             onProductSelect={handleProductSelect}
             isLowStock={true}
+            renderExtraInfo={renderExpiryDate}
           />
           
           <ProductSection
@@ -148,6 +169,7 @@ const RestockList: React.FC<RestockListProps> = ({
             products={otherProducts}
             selectedProducts={selectedProducts}
             onProductSelect={handleProductSelect}
+            renderExtraInfo={renderExpiryDate}
           />
         </CardContent>
         

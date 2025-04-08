@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import RestockList from '@/components/restock/RestockList';
+import RestockHistory from '@/components/restock/RestockHistory';
 import ActiveRestockSheet from '@/components/restock/ActiveRestockSheet';
 import { products } from '@/data/products';
 import { useRestockManagement } from '@/hooks/useRestockManagement';
@@ -14,11 +15,13 @@ const Restock = () => {
     products: managedProducts,
     lowStockProducts,
     activeList,
+    restockHistory,
     handleMarkAsRestocked,
     handleListCreated,
     handleConfirmRestock,
     handleCancelRestock,
-    handleProductStockChange
+    handleProductStockChange,
+    handleViewHistoryList
   } = useRestockManagement(products);
 
   return (
@@ -48,6 +51,12 @@ const Restock = () => {
           onProductStockChange={handleProductStockChange}
         />
       </div>
+
+      {/* Display restock history */}
+      <RestockHistory 
+        history={restockHistory} 
+        onViewList={handleViewHistoryList} 
+      />
 
       {/* Active sheet for restock list */}
       <ActiveRestockSheet

@@ -78,7 +78,7 @@ const Reports = () => {
           <TabsTrigger value="movements">Movimentações</TabsTrigger>
           <TabsTrigger value="expiring">Vencimentos</TabsTrigger>
           <TabsTrigger value="lowStock">Estoque Baixo</TabsTrigger>
-          <TabsTrigger value="topRestocked">Top Repostos</TabsTrigger>
+          <TabsTrigger value="topRestocked">Produtos Mais Vendidos</TabsTrigger>
         </TabsList>
         
         <TabsContent value="movements">

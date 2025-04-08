@@ -12,8 +12,8 @@ type TopRestockedReportProps = {
 const TopRestockedReport = ({ generating, onGenerateReport }: TopRestockedReportProps) => {
   return (
     <ReportCard
-      title="Relatório de Top Repostos"
-      description="Exporte um relatório dos produtos mais repostos nas prateleiras."
+      title="Relatório de Produtos Mais Vendidos"
+      description="Exporte um relatório dos produtos mais vendidos no seu estabelecimento."
       onGenerateReport={onGenerateReport}
       generating={generating}
     >

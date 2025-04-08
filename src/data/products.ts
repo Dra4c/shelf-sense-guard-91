@@ -1,5 +1,9 @@
 
 import { Product } from '../types';
+import { addDays } from './utils';
+
+// Current date to calculate relative expiry dates
+const now = new Date();
 
 // Sample Products
 export const products: Product[] = [
@@ -12,6 +16,7 @@ export const products: Product[] = [
     minStock: 20,
     image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&q=80",
     currentStock: 18,
+    expiryDate: addDays(now, 15),
   },
   {
     id: "2",
@@ -22,6 +27,7 @@ export const products: Product[] = [
     minStock: 15,
     image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80",
     currentStock: 25,
+    expiryDate: addDays(now, 180),
   },
   {
     id: "3",
@@ -32,6 +38,7 @@ export const products: Product[] = [
     minStock: 15,
     image: "https://images.unsplash.com/photo-1551462147-37885acc36f1?auto=format&fit=crop&q=80", 
     currentStock: 5,
+    expiryDate: addDays(now, 160),
   },
   {
     id: "4",
@@ -42,6 +49,7 @@ export const products: Product[] = [
     minStock: 10,
     image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&q=80",
     currentStock: 8,
+    expiryDate: addDays(now, 90),
   },
   {
     id: "5",
@@ -52,5 +60,6 @@ export const products: Product[] = [
     minStock: 12,
     image: "https://images.unsplash.com/photo-1620574387735-3624a33a1ece?auto=format&fit=crop&q=80",
     currentStock: 22,
+    expiryDate: addDays(now, 365),
   },
 ];

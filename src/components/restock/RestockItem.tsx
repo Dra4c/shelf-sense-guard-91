@@ -1,139 +1,106 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, CheckSquare, Square, Plus, Minus } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/types';
-import StockIndicator from '../status/StockIndicator';
-import { Input } from '@/components/ui/input';
+import StockIndicator from '@/components/status/StockIndicator';
 
 interface RestockItemProps {
   product: Product;
-  onMarkAsRestocked?: (productId: string) => void;
-  onSelect?: (productId: string, selected: boolean, quantity: number) => void;
-  isSelected?: boolean;
-  selectedQuantity?: number;
+  isSelected: boolean;
+  onSelect: (isSelected: boolean, quantity?: number) => void;
+  quantity: number;
+  isLowStock?: boolean;
+  extraInfo?: React.ReactNode;
 }
 
-const RestockItem: React.FC<RestockItemProps> = ({ 
-  product, 
-  onMarkAsRestocked,
+const RestockItem: React.FC<RestockItemProps> = ({
+  product,
+  isSelected,
   onSelect,
-  isSelected = false,
-  selectedQuantity = 1
+  quantity,
+  isLowStock = false,
+  extraInfo
 }) => {
-  const [quantity, setQuantity] = useState(selectedQuantity);
-
-  const handleMarkAsRestocked = () => {
-    if (onMarkAsRestocked) {
-      onMarkAsRestocked(product.id);
+  const [itemQuantity, setItemQuantity] = useState(quantity);
+  
+  const handleQuantityChange = (newQuantity: number) => {
+    // Don't allow quantity to go below 1 or above current stock
+    const validQuantity = Math.max(1, Math.min(newQuantity, product.currentStock));
+    setItemQuantity(validQuantity);
+    if (isSelected) {
+      onSelect(true, validQuantity);
     }
   };
-
-  const handleSelectionChange = () => {
-    if (onSelect) {
-      onSelect(product.id, !isSelected, quantity);
-    }
-  };
-
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value) || 1;
-    const newQuantity = Math.max(1, Math.min(value, product.currentStock)); // Limit quantity to current stock
-    setQuantity(newQuantity);
-    
-    if (isSelected && onSelect) {
-      onSelect(product.id, true, newQuantity);
-    }
-  };
-
-  const handleIncrement = () => {
-    const newQuantity = quantity + 1;
-    if (newQuantity <= product.currentStock) { // Limit quantity to current stock
-      setQuantity(newQuantity);
-      
-      if (isSelected && onSelect) {
-        onSelect(product.id, true, newQuantity);
-      }
-    }
-  };
-
-  const handleDecrement = () => {
-    if (quantity > 1) {
-      const newQuantity = quantity - 1;
-      setQuantity(newQuantity);
-      
-      if (isSelected && onSelect) {
-        onSelect(product.id, true, newQuantity);
-      }
-    }
+  
+  const handleSelect = (checked: boolean) => {
+    onSelect(checked, itemQuantity);
   };
 
   return (
-    <div className="flex items-center justify-between p-4 border rounded-lg bg-white hover:shadow-sm transition-shadow">
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        {onSelect && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleSelectionChange}
-          >
-            {isSelected ? <CheckSquare className="h-5 w-5" /> : <Square className="h-5 w-5" />}
-          </Button>
-        )}
-        <div className="min-w-0">
-          <h3 className="font-medium truncate">{product.name}</h3>
-          <p className="text-sm text-muted-foreground truncate">
-            {product.category} • {product.brand}
-          </p>
-          <StockIndicator 
-            current={product.currentStock} 
-            minimum={product.minStock} 
-            className="mt-1"
-          />
-        </div>
-      </div>
+    <div className={`p-3 border rounded-md flex items-center ${isSelected ? 'bg-muted/50' : ''}`}>
+      <Checkbox 
+        id={`product-${product.id}`}
+        checked={isSelected}
+        onCheckedChange={handleSelect}
+        className="mr-3"
+      />
       
-      <div className="flex items-center gap-2">
-        {isSelected && (
-          <div className="flex items-center rounded-md border">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-r-none"
-              onClick={handleDecrement}
-            >
-              <Minus className="h-3 w-3" />
-            </Button>
-            <Input
-              type="number"
-              min={1}
-              max={product.currentStock}
-              value={quantity}
-              onChange={handleQuantityChange}
-              className="h-8 w-16 border-0 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-l-none"
-              onClick={handleIncrement}
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
+      <div className="flex-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-1">
+          <label 
+            htmlFor={`product-${product.id}`}
+            className="font-medium cursor-pointer flex-1"
+          >
+            {product.name}
+          </label>
+          
+          <div className="text-sm text-muted-foreground">
+            Estoque: {product.currentStock}
           </div>
-        )}
-      
-        {onMarkAsRestocked && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1"
-            onClick={handleMarkAsRestocked}
-          >
-            <CheckCircle2 className="h-4 w-4" />
-            <span>Reposto</span>
-          </Button>
-        )}
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            {isLowStock && (
+              <StockIndicator 
+                currentStock={product.currentStock} 
+                minStock={product.minStock} 
+                size="sm" 
+              />
+            )}
+            {extraInfo}
+          </div>
+          
+          {isSelected && (
+            <div className="flex items-center space-x-2">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-7 w-7"
+                onClick={() => handleQuantityChange(itemQuantity - 1)}
+                disabled={itemQuantity <= 1}
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+              
+              <span className="w-8 text-center">
+                {itemQuantity}
+              </span>
+              
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-7 w-7"
+                onClick={() => handleQuantityChange(itemQuantity + 1)}
+                disabled={itemQuantity >= product.currentStock}
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

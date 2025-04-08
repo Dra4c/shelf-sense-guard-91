@@ -15,11 +15,13 @@ interface ActiveRestockList {
   name: string;
   items: RestockListItem[];
   createdAt: Date;
+  status: 'active' | 'completed' | 'cancelled';
 }
 
 export function useRestockManagement(initialProducts: Product[]) {
   const [products, setProducts] = useState(initialProducts);
   const [activeList, setActiveList] = useState<ActiveRestockList | null>(null);
+  const [restockHistory, setRestockHistory] = useState<ActiveRestockList[]>([]);
   const { toast } = useToast();
   const { isOffline, addPendingAction } = useOffline();
 
@@ -71,6 +73,15 @@ export function useRestockManagement(initialProducts: Product[]) {
   const handleConfirmRestock = () => {
     if (!activeList) return;
     
+    // Complete the active list
+    const completedList = {
+      ...activeList,
+      status: 'completed' as const
+    };
+    
+    // Add to history
+    setRestockHistory(prev => [completedList, ...prev]);
+    
     // Process the restock confirmation
     if (isOffline) {
       addPendingAction({
@@ -92,6 +103,17 @@ export function useRestockManagement(initialProducts: Product[]) {
   const handleCancelRestock = () => {
     // Ask for confirmation
     if (window.confirm('Tem certeza que deseja cancelar esta lista de reposição?')) {
+      if (!activeList) return;
+      
+      // Cancel the active list
+      const cancelledList = {
+        ...activeList,
+        status: 'cancelled' as const
+      };
+      
+      // Add to history
+      setRestockHistory(prev => [cancelledList, ...prev]);
+      
       const listName = activeList?.name;
       
       // Log cancellation
@@ -145,14 +167,27 @@ export function useRestockManagement(initialProducts: Product[]) {
     setProducts(updatedProducts);
   };
   
+  const handleViewHistoryList = (listId: string) => {
+    const list = restockHistory.find(item => item.id === listId);
+    if (list) {
+      // Just show the list in a read-only view
+      setActiveList({
+        ...list,
+        status: 'active' // Set to active so the sheet is displayed
+      });
+    }
+  };
+  
   return {
     products,
     lowStockProducts,
     activeList,
+    restockHistory,
     handleMarkAsRestocked,
     handleListCreated,
     handleConfirmRestock,
     handleCancelRestock,
-    handleProductStockChange
+    handleProductStockChange,
+    handleViewHistoryList
   };
 }
