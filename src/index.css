@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -32,7 +33,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -97,5 +98,45 @@
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  }
+  
+  /* Remover o efeito de foco azul em dispositivos móveis */
+  input, button, select, textarea {
+    @apply focus:outline-none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer components {
+  .card-mobile {
+    @apply rounded-xl border bg-card p-4 shadow-sm transition-all;
+  }
+
+  .list-item-mobile {
+    @apply flex items-center justify-between p-3 border-b last:border-b-0;
+  }
+  
+  .mobile-bottom-safe {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .touch-action-none {
+    touch-action: none;
+  }
+  
+  .glass-effect {
+    @apply backdrop-blur-md bg-white/70 dark:bg-zinc-900/70;
   }
 }
