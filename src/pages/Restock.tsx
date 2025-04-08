@@ -1,66 +1,82 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClipboardList, ListPlus } from 'lucide-react';
-import { products as initialProducts } from '@/data/products';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus, RefreshCw } from 'lucide-react';
 import RestockList from '@/components/restock/RestockList';
 import LowStockTab from '@/components/restock/LowStockTab';
 import ActiveRestockSheet from '@/components/restock/ActiveRestockSheet';
+import { products } from '@/data/products';
 import { useRestockManagement } from '@/hooks/useRestockManagement';
+import { OfflineIndicator } from '@/components/status/OfflineIndicator';
 
 const Restock = () => {
-  const [activeTab, setActiveTab] = useState('active');
-  
+  const [activeTab, setActiveTab] = useState('restocking');
   const {
-    products,
+    products: managedProducts,
     lowStockProducts,
     activeList,
     handleMarkAsRestocked,
     handleListCreated,
     handleConfirmRestock,
     handleCancelRestock
-  } = useRestockManagement(initialProducts);
+  } = useRestockManagement(products);
+
+  // Reset to restocking tab when a list is created
+  useEffect(() => {
+    if (activeList) {
+      setActiveTab('lowStock');
+    }
+  }, [activeList]);
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Reposição</h1>
-        <p className="text-muted-foreground">
-          Gerencie a reposição de produtos nas prateleiras.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Reposição</h1>
+          <p className="text-muted-foreground">
+            Crie listas de reposição e acompanhe itens que precisam ser repostos.
+          </p>
+        </div>
+        <OfflineIndicator />
       </div>
 
-      <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="active" className="flex items-center gap-2">
-            <ClipboardList className="h-4 w-4" />
-            Itens para Repor
-          </TabsTrigger>
-          <TabsTrigger value="create" className="flex items-center gap-2">
-            <ListPlus className="h-4 w-4" />
-            Criar Lista
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="active" className="space-y-4 mt-6">
-          <LowStockTab 
-            lowStockProducts={lowStockProducts} 
-            onMarkAsRestocked={handleMarkAsRestocked} 
+      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab}>
+        <div className="flex items-center justify-between mb-4">
+          <TabsList>
+            <TabsTrigger value="lowStock">Lista Rápida</TabsTrigger>
+            <TabsTrigger value="restocking">Criar Lista</TabsTrigger>
+          </TabsList>
+
+          {activeTab === 'lowStock' && (
+            <Button variant="outline" size="sm" className="gap-1">
+              <RefreshCw className="h-4 w-4" />
+              Atualizar
+            </Button>
+          )}
+        </div>
+
+        <TabsContent value="lowStock" className="m-0">
+          <LowStockTab
+            lowStockProducts={lowStockProducts}
+            onMarkAsRestocked={handleMarkAsRestocked}
           />
         </TabsContent>
-        
-        <TabsContent value="create" className="mt-6">
+
+        <TabsContent value="restocking" className="m-0">
           <RestockList 
-            products={products} 
-            onListCreated={handleListCreated} 
+            products={managedProducts}
+            onListCreated={handleListCreated}
           />
         </TabsContent>
       </Tabs>
-      
+
+      {/* Active sheet for restock list */}
       <ActiveRestockSheet
         activeList={activeList}
-        products={products}
-        onClose={handleCancelRestock}
+        products={managedProducts}
+        onClose={() => {}}
         onConfirm={handleConfirmRestock}
         onCancel={handleCancelRestock}
       />

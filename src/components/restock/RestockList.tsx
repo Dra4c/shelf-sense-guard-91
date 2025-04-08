@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -9,15 +9,17 @@ import RestockListHeader from './RestockListHeader';
 import ListNameInput from './ListNameInput';
 import ProductSection from './ProductSection';
 import RestockListFooter from './RestockListFooter';
+import RestockSearch from './RestockSearch';
 
 interface RestockListProps {
   products: Product[];
-  onListCreated?: (list: any) => void; // Updated to pass the list object
+  onListCreated?: (list: any) => void;
 }
 
 const RestockList: React.FC<RestockListProps> = ({ products, onListCreated }) => {
   const [listName, setListName] = useState('Lista de Reposição');
   const [selectedProducts, setSelectedProducts] = useState<Map<string, number>>(new Map());
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const { toast } = useToast();
   const { isOffline, addPendingAction } = useOffline();
 
@@ -82,19 +84,30 @@ const RestockList: React.FC<RestockListProps> = ({ products, onListCreated }) =>
     setSelectedProducts(new Map());
   };
 
-  const lowStockProducts = products.filter(product => product.currentStock < product.minStock);
-  const otherProducts = products.filter(product => product.currentStock >= product.minStock);
+  const handleSearchResults = (results: Product[]) => {
+    setFilteredProducts(results);
+  };
+
+  const lowStockProducts = filteredProducts.filter(product => product.currentStock < product.minStock);
+  const otherProducts = filteredProducts.filter(product => product.currentStock >= product.minStock);
 
   return (
     <Card className="w-full">
       <RestockListHeader />
       
       <CardContent className="space-y-4">
-        <ListNameInput
-          listName={listName}
-          onListNameChange={setListName}
-          onClear={handleClearSelection}
-        />
+        <div className="space-y-4">
+          <ListNameInput
+            listName={listName}
+            onListNameChange={setListName}
+            onClear={handleClearSelection}
+          />
+          
+          <RestockSearch 
+            products={products} 
+            onSearchResults={handleSearchResults} 
+          />
+        </div>
         
         <ProductSection
           title="Produtos com Estoque Baixo"
