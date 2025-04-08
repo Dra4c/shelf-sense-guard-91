@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useOffline } from '@/contexts/OfflineContext';
@@ -173,10 +172,11 @@ export function useRestockManagement(initialProducts: Product[]) {
   const handleViewHistoryList = (listId: string) => {
     const list = restockHistory.find(item => item.id === listId);
     if (list) {
-      // Just show the list in a read-only view
+      // Set the active list for viewing, preserving its original status
+      // This will make sure the list is opened in read-only mode
       setActiveList({
         ...list,
-        status: 'active' // Set to active so the sheet is displayed
+        status: list.status // Keep the original status (completed or cancelled)
       });
     }
   };
