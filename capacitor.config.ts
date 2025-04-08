@@ -25,7 +25,7 @@ const config: CapacitorConfig = {
       resize: "body",
       resizeOnFullScreen: true
     },
-    // Add StatusBar configuration
+    // Add StatusBar configuration for better UI integration
     StatusBar: {
       style: "dark",
       backgroundColor: "#FFFFFF"
@@ -35,7 +35,9 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: true,
     captureInput: true,
-    webContentsDebuggingEnabled: false
+    webContentsDebuggingEnabled: true, // Useful for debugging during development
+    backgroundColor: "#FFFFFF",
+    windowSoftInputMode: "adjustResize" // Ensures keyboard doesn't cover input fields
   },
   ios: {
     contentInset: "always",
@@ -43,7 +45,6 @@ const config: CapacitorConfig = {
     preferredContentMode: "mobile"
   },
   // App styling improvements
-  // Add styles for the barcode scanner
   appendUserAgent: 'ShelfSenseGuard',
   style: {
     '.scanner-active': {
@@ -59,13 +60,6 @@ const config: CapacitorConfig = {
       'width': '80%',
       'max-width': '300px',
       'aspect-ratio': '1',
-    },
-    // Add additional styles for better mobile experience
-    'ion-content': {
-      '--background': '#f5f5f5'
-    },
-    'ion-header': {
-      '--background': '#ffffff'
     }
   }
 };
