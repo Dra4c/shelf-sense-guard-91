@@ -28,6 +28,7 @@ const LowStockTab: React.FC<LowStockTabProps> = ({
               key={product.id}
               product={product}
               onMarkAsRestocked={onMarkAsRestocked}
+              isLowStock={true}
             />
           ))
         ) : (

@@ -16,6 +16,7 @@ interface ActiveRestockList {
   items: RestockListItem[];
   createdAt: Date;
   status: 'active' | 'completed' | 'cancelled';
+  itemCount?: number; // Add optional itemCount property to fix type compatibility
 }
 
 export function useRestockManagement(initialProducts: Product[]) {
@@ -76,7 +77,8 @@ export function useRestockManagement(initialProducts: Product[]) {
     // Complete the active list
     const completedList = {
       ...activeList,
-      status: 'completed' as const
+      status: 'completed' as const,
+      itemCount: activeList.items.length // Add itemCount for proper type compatibility
     };
     
     // Add to history
@@ -108,7 +110,8 @@ export function useRestockManagement(initialProducts: Product[]) {
       // Cancel the active list
       const cancelledList = {
         ...activeList,
-        status: 'cancelled' as const
+        status: 'cancelled' as const,
+        itemCount: activeList.items.length // Add itemCount for proper type compatibility
       };
       
       // Add to history

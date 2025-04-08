@@ -8,20 +8,22 @@ import StockIndicator from '@/components/status/StockIndicator';
 
 interface RestockItemProps {
   product: Product;
-  isSelected: boolean;
-  onSelect: (isSelected: boolean, quantity?: number) => void;
-  quantity: number;
+  isSelected?: boolean;
+  onSelect?: (isSelected: boolean, quantity?: number) => void;
+  quantity?: number;
   isLowStock?: boolean;
   extraInfo?: React.ReactNode;
+  onMarkAsRestocked?: (productId: string) => void; // Add the missing prop
 }
 
 const RestockItem: React.FC<RestockItemProps> = ({
   product,
-  isSelected,
-  onSelect,
-  quantity,
+  isSelected = false,
+  onSelect = () => {},
+  quantity = 1,
   isLowStock = false,
-  extraInfo
+  extraInfo,
+  onMarkAsRestocked
 }) => {
   const [itemQuantity, setItemQuantity] = useState(quantity);
   
@@ -40,12 +42,14 @@ const RestockItem: React.FC<RestockItemProps> = ({
 
   return (
     <div className={`p-3 border rounded-md flex items-center ${isSelected ? 'bg-muted/50' : ''}`}>
-      <Checkbox 
-        id={`product-${product.id}`}
-        checked={isSelected}
-        onCheckedChange={handleSelect}
-        className="mr-3"
-      />
+      {onSelect && (
+        <Checkbox 
+          id={`product-${product.id}`}
+          checked={isSelected}
+          onCheckedChange={handleSelect}
+          className="mr-3"
+        />
+      )}
       
       <div className="flex-1">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-1">
@@ -65,15 +69,15 @@ const RestockItem: React.FC<RestockItemProps> = ({
           <div className="space-y-1">
             {isLowStock && (
               <StockIndicator 
-                currentStock={product.currentStock} 
-                minStock={product.minStock} 
+                current={product.currentStock} 
+                minimum={product.minStock} 
                 size="sm" 
               />
             )}
             {extraInfo}
           </div>
           
-          {isSelected && (
+          {isSelected && onSelect && (
             <div className="flex items-center space-x-2">
               <Button 
                 variant="outline" 
@@ -99,6 +103,16 @@ const RestockItem: React.FC<RestockItemProps> = ({
                 <Plus className="h-3 w-3" />
               </Button>
             </div>
+          )}
+          
+          {onMarkAsRestocked && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onMarkAsRestocked(product.id)}
+            >
+              Marcar como Reposto
+            </Button>
           )}
         </div>
       </div>

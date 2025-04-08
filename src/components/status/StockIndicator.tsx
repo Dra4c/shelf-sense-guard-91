@@ -6,12 +6,14 @@ interface StockIndicatorProps {
   current: number;
   minimum: number;
   className?: string;
+  size?: string; // Add size prop for compatibility
 }
 
 const StockIndicator: React.FC<StockIndicatorProps> = ({ 
   current, 
   minimum, 
-  className 
+  className,
+  size 
 }) => {
   const isLow = current < minimum;
   const isCritical = current < minimum * 0.5;
@@ -31,6 +33,8 @@ const StockIndicator: React.FC<StockIndicatorProps> = ({
     textColor = 'text-status-danger';
     label = 'Estoque Crítico';
   }
+
+  const isSm = size === 'sm';
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
